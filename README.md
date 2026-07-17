@@ -30,7 +30,7 @@
     </button>
   </div>
 
-  <!-- ［修正③］画面サイズに自動で合わせるキャンバス容器（横幅いっぱいにフィット） -->
+  <!-- 画面サイズに自動で合わせるキャンバス容器 -->
   <div id="canvas-container" class="relative w-full max-w-sm bg-white border-4 border-amber-500 rounded-lg shadow-lg overflow-hidden aspect-[350/420]">
     <video id="webcam" autoplay playsinline muted style="display:none;"></video>
     <canvas id="avatarCanvas"></canvas>
@@ -118,7 +118,7 @@
 
     <!-- アクションボタンエリア -->
     <div class="p-4 bg-white border-t border-gray-100 space-y-3">
-      <!-- ［修正④］画像きせかえモード時のボタン群。LINEアイコン、カメラロール両対応に強化 -->
+      <!-- 画像きせかえモード時のボタン群 -->
       <div id="image-upload-area" class="hidden flex flex-col space-y-2">
         <div class="flex space-x-2">
           <button onclick="useLineProfilePic()" class="flex-1 bg-green-50 border border-green-300 text-green-800 font-bold py-2 rounded-lg text-xs text-center shadow-sm">
@@ -146,10 +146,10 @@
   </div>
 
   <script>
-    // ［修正③］画面幅に応じてキャンバスのサイズを自動計算（レスポンシブ化）
+    // 画面幅に応じてキャンバスのサイズを自動計算（レスポンシブ化）
     const container = document.getElementById('canvas-container');
-    const canvasWidth = container.clientWidth;
-    const canvasHeight = canvasWidth * (420 / 350); // アスペクト比を維持
+    const canvasWidth = container.clientWidth || 350;
+    const canvasHeight = canvasWidth * (420 / 350);
 
     const canvas = new fabric.Canvas('avatarCanvas', {
       width: canvasWidth,
@@ -196,16 +196,15 @@
         camBtn.className = "flex-1 py-2 text-xs font-bold rounded-md text-amber-800 transition";
         uploadArea.classList.remove('hidden');
         stopCamera();
-        useLineProfilePic(); // 画像モード切り替え時に自動的にLINEプロフを反映
+        useLineProfilePic();
       }
     }
 
-    // ［修正②］LINEブラウザの仕様・制限に合わせたカメラ起動処理
     async function startCamera() {
       if (isStreamActive) return;
       try {
         const constraints = {
-          video: { facingMode: { ideal: "environment" }, width: 720, height: 960 }, // 外カメラ
+          video: { facingMode: { ideal: "environment" }, width: 720, height: 960 },
           audio: false
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -240,8 +239,7 @@
         });
       } catch (err) {
         console.error("カメラの起動に失敗しました:", err);
-        // カメラが起動できない場合は、LINEの設定チェックとSafariでの起動を案内
-        alert("カメラの起動に失敗しました。\n\n【解決方法】\n1. スマホ本体の設定で「LINE」のカメラ許可をONにしてください。\n2. もしくは、画面右上の「三」メニューから「デフォルトのブラウザで開く（SafariやChrome）」を選んでみてください。");
+        alert("カメラの起動に失敗しました。本体設定でLINEのカメラ権限を許可するか、Safari等の通常ブラウザで開いてみてください。");
       }
     }
 
@@ -261,7 +259,6 @@
       canvas.renderAll();
     }
 
-    // ［修正④］LINEのプロフィール画像を背景にする処理
     function useLineProfilePic() {
       if (liff.isLoggedIn()) {
         liff.getProfile().then(profile => {
@@ -291,7 +288,6 @@
       }, { crossOrigin: 'anonymous' });
     }
 
-    // ［修正④］カメラロールからのアップロード処理
     document.getElementById('uploadPhoto').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
