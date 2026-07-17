@@ -22,6 +22,8 @@
 
   <!-- キャンバスエリア -->
   <div class="relative bg-white border-4 border-amber-500 rounded-lg shadow-lg overflow-hidden">
+    <!-- カメラ映像を取り込むための隠しビデオタグ -->
+    <video id="webcam" autoplay playsinline style="display:none;"></video>
     <canvas id="avatarCanvas" width="350" height="420"></canvas>
   </div>
 
@@ -40,7 +42,7 @@
 
     <!-- アイテム選択パネル -->
     <div class="p-4 bg-gray-50">
-      <!-- 1. 衣装カテゴリ (d-1.png 〜 d-7.png に変更) -->
+      <!-- 1. 衣装カテゴリ -->
       <div id="cat-costume" class="flex space-x-3 overflow-x-auto no-scrollbar py-2">
         <button onclick="addAppImage('d-1.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
           <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装1</span>
@@ -65,7 +67,7 @@
         </button>
       </div>
 
-      <!-- 2. 小物カテゴリ (r-1.png, s-1.png, s-a.png に変更) -->
+      <!-- 2. 小物カテゴリ -->
       <div id="cat-item" class="hidden flex space-x-3 overflow-x-auto no-scrollbar py-2">
         <button onclick="addAppImage('r-1.png', 100)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
           <span class="text-2xl">🎀</span><span class="text-[10px] text-gray-500 mt-1">リボン</span>
@@ -81,17 +83,13 @@
 
     <!-- アクションボタンエリア -->
     <div class="p-4 bg-white border-t border-gray-100 space-y-3">
-      <div class="flex space-x-2">
-        <input type="file" id="uploadPhoto" accept="image/*" class="hidden" />
-        <button onclick="document.getElementById('uploadPhoto').click()" class="flex-1 bg-amber-50 border border-amber-300 text-amber-800 font-bold py-2 rounded-lg text-sm text-center shadow-sm">
-          📸 写真変更
-        </button>
-        <button onclick="deleteSelected()" class="flex-1 bg-red-50 border border-red-300 text-red-700 font-bold py-2 rounded-lg text-sm text-center shadow-sm">
-          🗑️ 選択消去
+      <div class="text-center">
+        <button onclick="deleteSelected()" class="w-full bg-red-50 border border-red-300 text-red-700 font-bold py-2 rounded-lg text-sm shadow-sm">
+          🗑️ 選択した小物を消去
         </button>
       </div>
       <button onclick="exportImage()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg shadow-md transition text-sm">
-        💾 端末に画像を保存する
+        📸 この姿で写真を撮る（保存）
       </button>
       <button onclick="shareToLINE()" id="shareButton" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3 rounded-lg shadow-md transition text-sm hidden">
         💬 LINEの友達に送る
@@ -101,9 +99,10 @@
 
   <script>
     const canvas = new fabric.Canvas('avatarCanvas');
-    canvas.setBackgroundColor('#f3f4f6', canvas.renderAll.bind(canvas));
-
     const LIFF_ID = '2010740609-R7ilUhoL';
+    const videoEl = document.getElementById('webcam');
+    let fabricVideo = null;
+    let isStreamActive = false;
 
     async function initializeLiff() {
       try {
@@ -112,12 +111,59 @@
           const profile = await liff.getProfile();
           document.getElementById('welcomeMessage').innerText = `${profile.displayName}さんのフェス衣装`;
           document.getElementById('shareButton').classList.remove('hidden');
-          if (profile.pictureUrl) setBackgroundImage(profile.pictureUrl);
+          startCamera(); // ログイン完了したらカメラを起動
         } else {
           liff.login();
         }
       } catch (err) {
         console.error('LIFF Init failed', err);
+        startCamera(); // LINE外のブラウザテスト用
+      }
+    }
+
+    // 🌟 リアルタイムカメラ映像を背景にセットする関数
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: 720, height: 960 }, // インカメラを指定
+          audio: false
+        });
+        videoEl.srcObject = stream;
+        videoEl.play();
+        isStreamActive = true;
+
+        videoEl.addEventListener('loadedmetadata', function() {
+          // 既存の背景があれば削除
+          canvas.getObjects().forEach(obj => { if (obj.isBackgroundImage) canvas.remove(obj); });
+
+          // ビデオ要素をFabricのオブジェクトとして生成
+          fabricVideo = new fabric.Image(videoEl, {
+            left: 0, top: 0,
+            selectable: false, hoverCursor: 'default'
+          });
+
+          // キャンバスにぴったり収まるように拡大縮小
+          const scale = Math.max(canvas.width / videoEl.videoWidth, canvas.height / videoEl.videoHeight);
+          fabricVideo.set({
+            scaleX: scale, scaleY: scale,
+            left: (canvas.width - videoEl.videoWidth * scale) / 2,
+            top: (canvas.height - videoEl.videoHeight * scale) / 2,
+            isBackgroundImage: true
+          });
+
+          canvas.add(fabricVideo).sendToBack(fabricVideo);
+
+          // 🌟 カメラ映像をリアルタイム更新するループ処理
+          function updateVideoLoop() {
+            if (!isStreamActive) return;
+            canvas.renderAll();
+            fabric.util.requestAnimFrame(updateVideoLoop);
+          }
+          fabric.util.requestAnimFrame(updateVideoLoop);
+        });
+      } catch (err) {
+        console.error("カメラの起動に失敗しました:", err);
+        alert("カメラの起動に失敗しました。カメラの利用権限を許可してください。");
       }
     }
 
@@ -128,61 +174,30 @@
         if (cat === category) {
           tab.classList.add('text-amber-800', 'border-b-2', 'border-amber-600');
           tab.classList.remove('text-gray-500');
-          list.classList.remove('hidden');
-          list.classList.add('flex');
+          list.classList.remove('hidden'); list.classList.add('flex');
         } else {
           tab.classList.remove('text-amber-800', 'border-b-2', 'border-amber-600');
           tab.classList.add('text-gray-500');
-          list.classList.add('hidden');
-          list.classList.remove('flex');
+          list.classList.add('hidden'); list.remove('flex');
         }
       });
     }
 
-    function setBackgroundImage(imageUrl) {
-      fabric.Image.fromURL(imageUrl, function (img) {
-        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-        img.set({
-          scaleX: scale, scaleY: scale,
-          left: (canvas.width - img.width * scale) / 2,
-          top: (canvas.height - img.height * scale) / 2,
-          selectable: false, hoverCursor: 'default'
-        });
-        canvas.getObjects().forEach(obj => { if (obj.isBackgroundImage) canvas.remove(obj); });
-        img.isBackgroundImage = true;
-        canvas.add(img).sendToBack(img).renderAll();
-      }, { crossOrigin: 'anonymous' });
-    }
-
-    document.getElementById('uploadPhoto').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (f) { setBackgroundImage(f.target.result); };
-      reader.readAsDataURL(file);
-    });
-
-    // 画像を読み込んでピンク背景を透明にする関数
     function addAppImage(fileName, initialWidth) {
       const imageUrl = `https://kakerushirasawa.github.io/dirndlandlederhose/${fileName}`;
       
       fabric.Image.fromURL(imageUrl, function (img) {
-        // 鮮やかなピンク色（#FF00FF）を透明にするフィルター
         const filter = new fabric.Image.filters.RemoveColor({
           color: '#FF00FF',
           distance: 0.15
         });
-        
         img.filters.push(filter);
         img.applyFilters();
         
         img.scaleToWidth(initialWidth);
         img.set({
-          left: 80,
-          top: 100,
-          cornerColor: '#d97706',
-          cornerSize: 12,
-          transparentCorners: false
+          left: 80, top: 100,
+          cornerColor: '#d97706', cornerSize: 12, transparentCorners: false
         });
         
         canvas.add(img).setActiveObject(img).renderAll();
@@ -200,7 +215,7 @@
       canvas.discardActiveObject().renderAll();
       const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0 });
       const link = document.createElement('a');
-      link.download = 'oktoberfest-avatar.png';
+      link.download = 'oktoberfest-camera.png';
       link.href = dataURL;
       link.click();
     }
@@ -210,7 +225,7 @@
       try {
         await liff.shareTargetPicker([{
           type: "text",
-          text: "オクトーバーフェストの民族衣装アバターを作ったよ！🍻\nLINEからすぐ遊べるよ！\nhttps://liff.line.me/" + LIFF_ID
+          text: "オクトーバーフェストのリアルタイムきせかえカメラで遊んだよ！🍻\nLINEからすぐ開けるよ！\nhttps://liff.line.me/" + LIFF_ID
         }]);
       } catch (error) { console.error(error); }
     }
