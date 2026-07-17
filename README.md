@@ -9,7 +9,6 @@
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     body { background-color: #fdf6e2; }
-    /* スクロールバーを非表示にする設定 */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -34,61 +33,48 @@
       <button onclick="switchCategory('costume')" id="tab-costume" class="flex-1 py-3 text-sm font-bold text-amber-800 border-b-2 border-amber-600 text-center">
         👗 衣装
       </button>
-      <button onclick="switchCategory('hat')" id="tab-hat" class="flex-1 py-3 text-sm font-bold text-gray-500 text-center">
-        👒 帽子
-      </button>
       <button onclick="switchCategory('item')" id="tab-item" class="flex-1 py-3 text-sm font-bold text-gray-500 text-center">
-        🍺 小物
+        🎀 小物
       </button>
     </div>
 
-    <!-- アイテム選択パネル（横スクロール） -->
+    <!-- アイテム選択パネル -->
     <div class="p-4 bg-gray-50">
-      <!-- 1. 衣装カテゴリ -->
+      <!-- 1. 衣装カテゴリ (d-1.png 〜 d-7.png に変更) -->
       <div id="cat-costume" class="flex space-x-3 overflow-x-auto no-scrollbar py-2">
-        <button onclick="addEmoji('👗', 'ディアンドル(赤)')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">👗</span>
-          <span class="text-[10px] text-gray-500 mt-1">赤ドレス</span>
+        <button onclick="addAppImage('d-1.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装1</span>
         </button>
-        <button onclick="addEmoji('👘', 'ディアンドル(青)')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">👘</span>
-          <span class="text-[10px] text-gray-500 mt-1">青ドレス</span>
+        <button onclick="addAppImage('d-2.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装2</span>
         </button>
-        <button onclick="addEmoji('🤠', 'レダーホーゼン')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">🤠</span>
-          <span class="text-[10px] text-gray-500 mt-1">レザーパンツ</span>
+        <button onclick="addAppImage('d-3.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装3</span>
         </button>
-      </div>
-
-      <!-- 2. 帽子カテゴリ（初期は非表示） -->
-      <div id="cat-hat" class="hidden flex space-x-3 overflow-x-auto no-scrollbar py-2">
-        <button onclick="addEmoji('👒', '麦わら帽')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">👒</span>
-          <span class="text-[10px] text-gray-500 mt-1">チロリアンA</span>
+        <button onclick="addAppImage('d-4.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装4</span>
         </button>
-        <button onclick="addEmoji('🎩', 'シルクハット')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">🎩</span>
-          <span class="text-[10px] text-gray-500 mt-1">チロリアンB</span>
+        <button onclick="addAppImage('d-5.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装5</span>
         </button>
-        <button onclick="addEmoji('👑', '花冠')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">👑</span>
-          <span class="text-[10px] text-gray-500 mt-1">花かんむり</span>
+        <button onclick="addAppImage('d-6.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装6</span>
+        </button>
+        <button onclick="addAppImage('d-7.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👗</span><span class="text-[10px] text-gray-500 mt-1">衣装7</span>
         </button>
       </div>
 
-      <!-- 3. 小物カテゴリ（初期は非表示） -->
+      <!-- 2. 小物カテゴリ (r-1.png, s-1.png, s-a.png に変更) -->
       <div id="cat-item" class="hidden flex space-x-3 overflow-x-auto no-scrollbar py-2">
-        <button onclick="addEmoji('🍺', '大ジョッキ')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">🍺</span>
-          <span class="text-[10px] text-gray-500 mt-1">ビールジョッキ</span>
+        <button onclick="addAppImage('r-1.png', 100)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">🎀</span><span class="text-[10px] text-gray-500 mt-1">リボン</span>
         </button>
-        <button onclick="addEmoji('🥨', 'プレッツェル')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">🥨</span>
-          <span class="text-[10px] text-gray-500 mt-1">プレッツェル</span>
+        <button onclick="addAppImage('s-1.png', 100)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👞</span><span class="text-[10px] text-gray-500 mt-1">シューズ1</span>
         </button>
-        <button onclick="addEmoji('🍖', 'お肉')" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
-          <span class="text-3xl">🍖</span>
-          <span class="text-[10px] text-gray-500 mt-1">肉料理</span>
+        <button onclick="addAppImage('s-a.png', 100)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500">
+          <span class="text-2xl">👞</span><span class="text-[10px] text-gray-500 mt-1">シューズA</span>
         </button>
       </div>
     </div>
@@ -104,7 +90,6 @@
           🗑️ 選択消去
         </button>
       </div>
-
       <button onclick="exportImage()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg shadow-md transition text-sm">
         💾 端末に画像を保存する
       </button>
@@ -118,7 +103,7 @@
     const canvas = new fabric.Canvas('avatarCanvas');
     canvas.setBackgroundColor('#f3f4f6', canvas.renderAll.bind(canvas));
 
-    const LIFF_ID = '2010740609-R7ilUhoL'; // さっきのIDを適用！
+    const LIFF_ID = '2010740609-R7ilUhoL';
 
     async function initializeLiff() {
       try {
@@ -136,9 +121,8 @@
       }
     }
 
-    // カテゴリタブの切り替えロジック
     function switchCategory(category) {
-      ['costume', 'hat', 'item'].forEach(cat => {
+      ['costume', 'item'].forEach(cat => {
         const tab = document.getElementById(`tab-${cat}`);
         const list = document.getElementById(`cat-${cat}`);
         if (cat === category) {
@@ -178,13 +162,31 @@
       reader.readAsDataURL(file);
     });
 
-    // ChatGPTの画像が来たら、ここを fabric.Image.fromURL に書き換えます
-    function addEmoji(emoji, name) {
-      const text = new fabric.Text(emoji, {
-        fontSize: 100, left: 120, top: 150,
-        cornerColor: '#d97706', cornerSize: 12, transparentCorners: false
-      });
-      canvas.add(text).setActiveObject(text).renderAll();
+    // 画像を読み込んでピンク背景を透明にする関数
+    function addAppImage(fileName, initialWidth) {
+      const imageUrl = `https://kakerushirasawa.github.io/dirndlandlederhose/${fileName}`;
+      
+      fabric.Image.fromURL(imageUrl, function (img) {
+        // 鮮やかなピンク色（#FF00FF）を透明にするフィルター
+        const filter = new fabric.Image.filters.RemoveColor({
+          color: '#FF00FF',
+          distance: 0.15
+        });
+        
+        img.filters.push(filter);
+        img.applyFilters();
+        
+        img.scaleToWidth(initialWidth);
+        img.set({
+          left: 80,
+          top: 100,
+          cornerColor: '#d97706',
+          cornerSize: 12,
+          transparentCorners: false
+        });
+        
+        canvas.add(img).setActiveObject(img).renderAll();
+      }, { crossOrigin: 'anonymous' });
     }
 
     function deleteSelected() {
@@ -213,8 +215,7 @@
       } catch (error) { console.error(error); }
     }
 
-    // LINE上でのテスト時は以下のコメントアウトを解除してください
-    // window.onload = initializeLiff;
+    window.onload = initializeLiff;
   </script>
 </body>
 </html>
