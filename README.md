@@ -20,7 +20,7 @@
     <p class="text-xs text-amber-700" id="welcomeMessage">自分だけのフェス衣装を作ろう！</p>
   </header>
 
-  <!-- 撮影モード（カメラ）と 画像きせかえモード の切り替えタブ -->
+  <!-- 撮影モード切り替えタブ -->
   <div class="flex w-full max-w-md bg-amber-100 rounded-lg p-1 mb-3">
     <button onclick="setMode('camera')" id="mode-camera" class="flex-1 py-2 text-xs font-bold rounded-md bg-amber-600 text-white shadow-sm transition">
       📸 リアルタイム外カメラ
@@ -30,10 +30,10 @@
     </button>
   </div>
 
-  <!-- キャンバスエリア -->
-  <div class="relative bg-white border-4 border-amber-500 rounded-lg shadow-lg overflow-hidden">
+  <!-- ［修正③］画面サイズに自動で合わせるキャンバス容器（横幅いっぱいにフィット） -->
+  <div id="canvas-container" class="relative w-full max-w-sm bg-white border-4 border-amber-500 rounded-lg shadow-lg overflow-hidden aspect-[350/420]">
     <video id="webcam" autoplay playsinline muted style="display:none;"></video>
-    <canvas id="avatarCanvas" width="350" height="420"></canvas>
+    <canvas id="avatarCanvas"></canvas>
   </div>
 
   <!-- 操作パネル -->
@@ -47,15 +47,14 @@
       <button onclick="switchCategory('item')" id="tab-item" class="flex-1 py-3 text-sm font-bold text-gray-500 text-center">
         🎀 小物
       </button>
-      <!-- 向き・重ね順の調整タブ -->
       <button onclick="switchCategory('adjust')" id="tab-adjust" class="flex-1 py-3 text-sm font-bold text-gray-500 text-center">
-        🔄 向き・重なり調整
+        🔄 調整
       </button>
     </div>
 
     <!-- アイテム・調整選択パネル -->
     <div class="p-4 bg-gray-50">
-      <!-- 1. 衣装カテゴリ（ボタンのアイコンを実際の画像に変更しました） -->
+      <!-- 1. 衣装カテゴリ -->
       <div id="cat-costume" class="flex space-x-3 overflow-x-auto no-scrollbar py-2">
         <button onclick="addAppImage('d-1.png', 200)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500 overflow-hidden">
           <img src="d-1.png" class="w-12 h-12 object-contain" alt="衣装1">
@@ -87,7 +86,7 @@
         </button>
       </div>
 
-      <!-- 2. 小物カテゴリ（ボタンのアイコンをリボンやシューズの画像に変更しました） -->
+      <!-- 2. 小物カテゴリ -->
       <div id="cat-item" class="hidden flex space-x-3 overflow-x-auto no-scrollbar py-2">
         <button onclick="addAppImage('r-1.png', 100)" class="flex-shrink-0 w-20 h-20 bg-white border-2 border-amber-200 rounded-lg flex flex-col items-center justify-center shadow-sm hover:border-amber-500 overflow-hidden">
           <img src="r-1.png" class="w-12 h-12 object-contain" alt="リボン">
@@ -107,32 +106,34 @@
       <div id="cat-adjust" class="hidden flex space-x-2 py-2">
         <button onclick="flipSelectedX()" class="flex-1 py-3 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-100 flex flex-col items-center justify-center">
           <span>🔄 左右反転</span>
-          <span class="text-[9px] text-gray-400 mt-1">人物の向きに合わせる</span>
         </button>
         <button onclick="adjustLayer('up')" class="flex-1 py-3 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-100 flex flex-col items-center justify-center">
-          <span>➕ 重ね順を上に</span>
-          <span class="text-[9px] text-gray-400 mt-1">衣装を前に出す</span>
+          <span>➕ 前に出す</span>
         </button>
         <button onclick="adjustLayer('down')" class="flex-1 py-3 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-100 flex flex-col items-center justify-center">
-          <span>➖ 重ね順を下に</span>
-          <span class="text-[9px] text-gray-400 mt-1">小物を後ろに隠す</span>
+          <span>➖ 後ろに下げる</span>
         </button>
       </div>
     </div>
 
     <!-- アクションボタンエリア -->
     <div class="p-4 bg-white border-t border-gray-100 space-y-3">
-      <!-- 画像きせかえモードの時だけ表示される、アルバム写真アップロードボタン -->
-      <div id="image-upload-area" class="hidden flex space-x-2">
+      <!-- ［修正④］画像きせかえモード時のボタン群。LINEアイコン、カメラロール両対応に強化 -->
+      <div id="image-upload-area" class="hidden flex flex-col space-y-2">
+        <div class="flex space-x-2">
+          <button onclick="useLineProfilePic()" class="flex-1 bg-green-50 border border-green-300 text-green-800 font-bold py-2 rounded-lg text-xs text-center shadow-sm">
+            💚 LINEアイコンを使う
+          </button>
+          <button onclick="document.getElementById('uploadPhoto').click()" class="flex-1 bg-amber-50 border border-amber-300 text-amber-800 font-bold py-2 rounded-lg text-xs text-center shadow-sm">
+            📁 カメラロールから選ぶ
+          </button>
+        </div>
         <input type="file" id="uploadPhoto" accept="image/*" class="hidden" />
-        <button onclick="document.getElementById('uploadPhoto').click()" class="w-full bg-amber-50 border border-amber-300 text-amber-800 font-bold py-2 rounded-lg text-sm text-center shadow-sm">
-          📸 アルバムから写真を選択
-        </button>
       </div>
 
       <div class="flex space-x-2">
         <button onclick="deleteSelected()" class="w-full bg-red-50 border border-red-300 text-red-700 font-bold py-2 rounded-lg text-sm text-center shadow-sm">
-          🗑️ 選択した衣装・小物を消去
+          🗑️ 選択したアイテムを消去
         </button>
       </div>
       <button onclick="exportImage()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-lg shadow-md transition text-sm">
@@ -145,7 +146,16 @@
   </div>
 
   <script>
-    const canvas = new fabric.Canvas('avatarCanvas');
+    // ［修正③］画面幅に応じてキャンバスのサイズを自動計算（レスポンシブ化）
+    const container = document.getElementById('canvas-container');
+    const canvasWidth = container.clientWidth;
+    const canvasHeight = canvasWidth * (420 / 350); // アスペクト比を維持
+
+    const canvas = new fabric.Canvas('avatarCanvas', {
+      width: canvasWidth,
+      height: canvasHeight
+    });
+
     const LIFF_ID = '2010740609-R7ilUhoL';
     const videoEl = document.getElementById('webcam');
     let fabricVideo = null;
@@ -186,23 +196,19 @@
         camBtn.className = "flex-1 py-2 text-xs font-bold rounded-md text-amber-800 transition";
         uploadArea.classList.remove('hidden');
         stopCamera();
-        if (liff.isLoggedIn()) {
-          liff.getProfile().then(profile => {
-            if (profile.pictureUrl) setBackgroundImage(profile.pictureUrl);
-          });
-        } else {
-          canvas.setBackgroundColor('#f3f4f6', canvas.renderAll.bind(canvas));
-        }
+        useLineProfilePic(); // 画像モード切り替え時に自動的にLINEプロフを反映
       }
     }
 
+    // ［修正②］LINEブラウザの仕様・制限に合わせたカメラ起動処理
     async function startCamera() {
       if (isStreamActive) return;
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" }, width: 720, height: 960 },
+        const constraints = {
+          video: { facingMode: { ideal: "environment" }, width: 720, height: 960 }, // 外カメラ
           audio: false
-        });
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoEl.srcObject = stream;
         videoEl.play();
         isStreamActive = true;
@@ -234,7 +240,8 @@
         });
       } catch (err) {
         console.error("カメラの起動に失敗しました:", err);
-        alert("カメラの起動に失敗しました。カメラの利用権限を許可してください。");
+        // カメラが起動できない場合は、LINEの設定チェックとSafariでの起動を案内
+        alert("カメラの起動に失敗しました。\n\n【解決方法】\n1. スマホ本体の設定で「LINE」のカメラ許可をONにしてください。\n2. もしくは、画面右上の「三」メニューから「デフォルトのブラウザで開く（SafariやChrome）」を選んでみてください。");
       }
     }
 
@@ -254,6 +261,21 @@
       canvas.renderAll();
     }
 
+    // ［修正④］LINEのプロフィール画像を背景にする処理
+    function useLineProfilePic() {
+      if (liff.isLoggedIn()) {
+        liff.getProfile().then(profile => {
+          if (profile.pictureUrl) {
+            setBackgroundImage(profile.pictureUrl);
+          } else {
+            alert("LINEのプロフィール画像が設定されていません。");
+          }
+        }).catch(err => console.error(err));
+      } else {
+        canvas.setBackgroundColor('#f3f4f6', canvas.renderAll.bind(canvas));
+      }
+    }
+
     function setBackgroundImage(imageUrl) {
       removeBackground();
       fabric.Image.fromURL(imageUrl, function (img) {
@@ -269,6 +291,7 @@
       }, { crossOrigin: 'anonymous' });
     }
 
+    // ［修正④］カメラロールからのアップロード処理
     document.getElementById('uploadPhoto').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -306,7 +329,8 @@
         
         img.scaleToWidth(initialWidth);
         img.set({
-          left: 80, top: 100,
+          left: (canvas.width - initialWidth) / 2,
+          top: 100,
           cornerColor: '#d97706', cornerSize: 12, transparentCorners: false
         });
         
@@ -322,7 +346,6 @@
       }
     }
 
-    // 重ね順の調整
     function adjustLayer(direction) {
       const activeObject = canvas.getActiveObject();
       if (!activeObject || activeObject.isBackgroundImage) return;
